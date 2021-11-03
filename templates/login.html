@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <Table align="center">
+        <tr><div>{% if error %} {{error}} {% endif %}</div></tr>
+        <form action="" method="post">
+            {% csrf_token %}
+            <tr>
+                <td>e-mail</td>
+                <td><input name="email" type="email"></td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td><input name="password" type="password"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="Login"></td>
+                <td><a href="/register/"><input type="button" value="Register"></td></a>
+            </tr>
+        </form>
+    </Table>
+</body>
+</html>
