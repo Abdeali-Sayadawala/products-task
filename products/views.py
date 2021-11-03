@@ -3,14 +3,77 @@ from django.contrib.auth.hashers import make_password, check_password
 from .models import Category, Product
 from customers.models import Customer
 from .forms import ProductFrom, CategoryFrom
+from .serializers import CategorySerializer, ProductSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework import status
+from rest_framework import status, generics
 import datetime
 
 # Create your views here
-@api_view(['GET', 'POST', 'PUT', 'DEL'])
+@api_view(['GET', 'POST', 'PUT'])
+@permission_classes([AllowAny])
+def get_products(request):
+
+    return Response(data={"msg": "success"}, status=status.HTTP_200_OK)
+
+class CategoryList(generics.ListAPIView):
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        queryset = Category.objects.all()
+        name = self.request.query_params.get('name')
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        
+        sub_category = self.request.query_params.get('sub_category')
+        if sub_category is not None:
+            queryset = queryset.filter(sub_category=Category.objects.get(id=int(sub_category)))
+        return queryset
+
+class ProductList(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        queryset = Product.objects.all()
+        name = self.request.query_params.get('name')
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        
+        price = self.request.query_params.get('price')
+        if price is not None:
+            queryset = queryset.filter(price=price)
+        
+        status = self.request.query_params.get('status')
+        if status is not None:
+            queryset = queryset.filter(status=status)
+        
+        product_code = self.request.query_params.get('product_code')
+        if product_code is not None:
+            queryset = queryset.filter(product_code__icontains=product_code)
+        
+        sub_category = self.request.query_params.get('sub_category')
+        if sub_category is not None:
+            queryset = queryset.filter(sub_category=Category.objects.get(id=int(sub_category)))
+
+        manufacture_date = self.request.query_params.get('manufacture_date')
+        if manufacture_date is not None:
+            queryset = queryset.filter(manufacture_date=datetime.datetime.strptime(manufacture_date, "%Y-%m-%d").date())
+        
+        expiry_date = self.request.query_params.get('expiry_date')
+        if expiry_date is not None:
+            queryset = queryset.filter(expiry_date=datetime.datetime.strptime(expiry_date, "%Y-%m-%d").date())
+        return queryset
+
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes([AllowAny])
 def products(request):
     #checking login
